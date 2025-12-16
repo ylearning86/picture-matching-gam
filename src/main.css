@@ -182,5 +182,8 @@
 
   body {
     @apply bg-background text-foreground;
+    /* Improve touch experience on iOS/iPadOS */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 }

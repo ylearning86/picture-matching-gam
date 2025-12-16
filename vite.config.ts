@@ -10,6 +10,9 @@ const projectRoot = process.env.PROJECT_ROOT || import.meta.dirname
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Configure base path for GitHub Pages deployments
+  // Example: set BASE_PATH to "/<repo-name>/" via CI when deploying under a subpath
+  base: process.env.BASE_PATH || "/",
   plugins: [
     react(),
     tailwindcss(),

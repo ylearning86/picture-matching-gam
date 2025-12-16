@@ -1,6 +1,6 @@
 # Planning Guide
 
-A colorful memory card matching game designed for children, featuring beloved characters and items from popular franchises like Pokémon and Minecraft.
+A colorful memory card matching game designed for children, featuring cute animals and fun emojis that kids love.
 
 **Experience Qualities**: 
 1. **Playful** - Bright, cheerful visuals with satisfying card flip animations that make every interaction feel magical

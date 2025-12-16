@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { toast, Toaster } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 
-const CARD_EMOJIS = ['🐉', '⚔️', '💎', '🎮', '🌟', '🔥', '🏆', '🎯']
+const CARD_EMOJIS = ['🐶', '🐱', '🐼', '🦁', '🐸', '🦊', '🐻', '🐰']
 
 interface CardType {
   id: number

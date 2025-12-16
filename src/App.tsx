@@ -68,7 +68,7 @@ function App() {
         setMatches(currentMatches => currentMatches + 1)
         setFlippedIndices([])
         setIsChecking(false)
-        toast.success('Match found! 🎉')
+        toast.success('マッチ成功！ 🎉')
       } else {
         setTimeout(() => {
           setCards(currentCards => currentCards.map((card, idx) =>
@@ -88,9 +88,9 @@ function App() {
       setGameWon(true)
       if (bestScore === null || bestScore === undefined || moves < bestScore) {
         setBestScore(moves)
-        toast.success(`New best score: ${moves} moves! 🏆`)
+        toast.success(`新記録: ${moves}手！ 🏆`)
       } else {
-        toast.success(`You won in ${moves} moves! 🎊`)
+        toast.success(`${moves}手でクリア！ 🎊`)
       }
     }
   }, [matches, moves, bestScore, setBestScore])
@@ -121,9 +121,9 @@ function App() {
           className="text-center space-y-2"
         >
           <h1 className="text-5xl font-bold text-primary drop-shadow-lg">
-            Memory Match Game 🎮
+            絵合わせゲーム 🎮
           </h1>
-          <p className="text-lg text-muted-foreground">Find all the matching pairs!</p>
+          <p className="text-lg text-muted-foreground">すべてのペアを見つけよう！</p>
         </motion.div>
 
         <motion.div
@@ -136,7 +136,7 @@ function App() {
               <div className="flex items-center gap-2">
                 <span className="text-2xl">👣</span>
                 <div className="text-center">
-                  <div className="text-sm text-muted-foreground font-semibold">Moves</div>
+                  <div className="text-sm text-muted-foreground font-semibold">手数</div>
                   <Badge variant="secondary" className="text-lg px-3 py-1 font-bold bg-secondary text-secondary-foreground">
                     {moves}
                   </Badge>
@@ -146,7 +146,7 @@ function App() {
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🎯</span>
                 <div className="text-center">
-                  <div className="text-sm text-muted-foreground font-semibold">Matches</div>
+                  <div className="text-sm text-muted-foreground font-semibold">ペア数</div>
                   <Badge variant="secondary" className="text-lg px-3 py-1 font-bold bg-accent text-accent-foreground">
                     {matches} / {CARD_EMOJIS.length}
                   </Badge>
@@ -157,7 +157,7 @@ function App() {
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">🏆</span>
                   <div className="text-center">
-                    <div className="text-sm text-muted-foreground font-semibold">Best</div>
+                    <div className="text-sm text-muted-foreground font-semibold">最高記録</div>
                     <Badge variant="secondary" className="text-lg px-3 py-1 font-bold bg-primary text-primary-foreground">
                       {bestScore}
                     </Badge>
@@ -171,7 +171,7 @@ function App() {
                 className="ml-auto bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-bold shadow-lg"
               >
                 <ArrowClockwise className="mr-2" />
-                New Game
+                新しいゲーム
               </Button>
             </div>
           </Card>
@@ -223,12 +223,12 @@ function App() {
                 >
                   🏆
                 </motion.div>
-                <h2 className="text-4xl font-bold text-primary">You Won!</h2>
+                <h2 className="text-4xl font-bold text-primary">クリア！</h2>
                 <p className="text-xl text-muted-foreground">
-                  Completed in <span className="font-bold text-accent">{moves}</span> moves!
+                  <span className="font-bold text-accent">{moves}</span>手でクリアしました！
                 </p>
                 {bestScore === moves && (
-                  <p className="text-lg font-semibold text-primary">🎉 New Best Score! 🎉</p>
+                  <p className="text-lg font-semibold text-primary">🎉 新記録達成！ 🎉</p>
                 )}
                 <Button
                   onClick={() => {
@@ -239,7 +239,7 @@ function App() {
                   className="w-full bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white font-bold text-lg shadow-lg"
                 >
                   <ArrowClockwise className="mr-2" />
-                  Play Again
+                  もう一度プレイ
                 </Button>
               </motion.div>
             </motion.div>

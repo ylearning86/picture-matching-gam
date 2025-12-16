@@ -8,7 +8,15 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { toast, Toaster } from 'sonner'
 import { useKV } from '@github/spark/hooks'
 
-const CARD_EMOJIS = ['🐶', '🐱', '🐼', '🦁', '🐸', '🦊', '🐻', '🐰']
+const ALL_EMOJIS = ['🐶', '🐱', '🐼', '🦁', '🐸', '🦊', '🐻', '🐰', '🐯', '🐮', '🐷', '🐵']
+
+type Difficulty = 'easy' | 'normal' | 'hard'
+
+const DIFFICULTY_CONFIG = {
+  easy: { pairs: 4, label: '簡単', gridCols: 'grid-cols-4' },
+  normal: { pairs: 6, label: '普通', gridCols: 'grid-cols-4' },
+  hard: { pairs: 8, label: '難しい', gridCols: 'grid-cols-4' },
+}
 
 interface CardType {
   id: number
@@ -27,16 +35,25 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 function App() {
+  const [difficulty, setDifficulty] = useKV<Difficulty>('difficulty', 'normal')
   const [cards, setCards] = useState<CardType[]>([])
   const [flippedIndices, setFlippedIndices] = useState<number[]>([])
   const [moves, setMoves] = useState(0)
   const [matches, setMatches] = useState(0)
   const [isChecking, setIsChecking] = useState(false)
   const [gameWon, setGameWon] = useState(false)
-  const [bestScore, setBestScore] = useKV<number | null>('bestScore', null)
+  const [bestScores, setBestScores] = useKV<Record<Difficulty, number | null>>('bestScores', {
+    easy: null,
+    normal: null,
+    hard: null,
+  })
+
+  const currentDifficulty = difficulty || 'normal'
+  const currentPairs = DIFFICULTY_CONFIG[currentDifficulty].pairs
 
   const initializeGame = () => {
-    const doubledEmojis = [...CARD_EMOJIS, ...CARD_EMOJIS]
+    const selectedEmojis = ALL_EMOJIS.slice(0, currentPairs)
+    const doubledEmojis = [...selectedEmojis, ...selectedEmojis]
     const shuffled = shuffleArray(doubledEmojis)
     const newCards = shuffled.map((emoji, index) => ({
       id: index,
@@ -54,7 +71,7 @@ function App() {
 
   useEffect(() => {
     initializeGame()
-  }, [])
+  }, [difficulty])
 
   useEffect(() => {
     if (flippedIndices.length === 2) {
@@ -84,16 +101,23 @@ function App() {
   }, [flippedIndices])
 
   useEffect(() => {
-    if (matches === CARD_EMOJIS.length && matches > 0) {
+    if (matches === currentPairs && matches > 0) {
       setGameWon(true)
-      if (bestScore === null || bestScore === undefined || moves < bestScore) {
-        setBestScore(moves)
+      const scores = bestScores || { easy: null, normal: null, hard: null }
+      const currentBest = scores[currentDifficulty]
+      if (currentBest === null || currentBest === undefined || moves < currentBest) {
+        setBestScores((current) => {
+          const updated = { ...(current || { easy: null, normal: null, hard: null }) }
+          const diff = currentDifficulty
+          updated[diff] = moves
+          return updated
+        })
         toast.success(`新記録: ${moves}手！ 🏆`)
       } else {
         toast.success(`${moves}手でクリア！ 🎊`)
       }
     }
-  }, [matches, moves, bestScore, setBestScore])
+  }, [matches, moves, bestScores, currentDifficulty, currentPairs, setBestScores])
 
   const handleCardClick = (index: number) => {
     if (
@@ -129,6 +153,34 @@ function App() {
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.05 }}
+        >
+          <Card className="p-4 bg-card/80 backdrop-blur-sm border-2 border-primary/20 shadow-xl">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap gap-2 justify-center">
+                {(['easy', 'normal', 'hard'] as Difficulty[]).map((diff) => (
+                  <Button
+                    key={diff}
+                    onClick={() => {
+                      setDifficulty(diff)
+                      initializeGame()
+                    }}
+                    variant={currentDifficulty === diff ? 'default' : 'outline'}
+                    className={currentDifficulty === diff 
+                      ? 'bg-gradient-to-r from-primary to-accent text-white font-bold' 
+                      : 'font-semibold'}
+                  >
+                    {DIFFICULTY_CONFIG[diff].label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.1 }}
         >
           <Card className="p-6 bg-card/80 backdrop-blur-sm border-2 border-primary/20 shadow-xl">
@@ -148,18 +200,18 @@ function App() {
                 <div className="text-center">
                   <div className="text-sm text-muted-foreground font-semibold">ペア数</div>
                   <Badge variant="secondary" className="text-lg px-3 py-1 font-bold bg-accent text-accent-foreground">
-                    {matches} / {CARD_EMOJIS.length}
+                    {matches} / {currentPairs}
                   </Badge>
                 </div>
               </div>
 
-              {bestScore !== null && (
+              {bestScores?.[currentDifficulty] !== null && bestScores?.[currentDifficulty] !== undefined && (
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">🏆</span>
                   <div className="text-center">
                     <div className="text-sm text-muted-foreground font-semibold">最高記録</div>
                     <Badge variant="secondary" className="text-lg px-3 py-1 font-bold bg-primary text-primary-foreground">
-                      {bestScore}
+                      {bestScores[currentDifficulty]}
                     </Badge>
                   </div>
                 </div>
@@ -181,7 +233,7 @@ function App() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-4 gap-4 max-w-2xl mx-auto"
+          className={`grid ${DIFFICULTY_CONFIG[currentDifficulty].gridCols} gap-4 max-w-2xl mx-auto`}
         >
           {cards.map((card, index) => (
             <GameCard
@@ -227,7 +279,7 @@ function App() {
                 <p className="text-xl text-muted-foreground">
                   <span className="font-bold text-accent">{moves}</span>手でクリアしました！
                 </p>
-                {bestScore === moves && (
+                {bestScores?.[currentDifficulty] === moves && (
                   <p className="text-lg font-semibold text-primary">🎉 新記録達成！ 🎉</p>
                 )}
                 <Button

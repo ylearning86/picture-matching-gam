@@ -1,16 +1,37 @@
 # Planning Guide
 
-A colorful memory card matching game designed for children, featuring cute animals and fun emojis that kids love.
+A colorful memory card matching game designed for children, featuring cute animals and fun emojis that kids love, with both relaxed and timed challenge modes.
 
 **Experience Qualities**: 
 1. **Playful** - Bright, cheerful visuals with satisfying card flip animations that make every interaction feel magical
 2. **Rewarding** - Celebratory feedback when matches are found, with encouraging messages to keep kids engaged
-3. **Accessible** - Simple, intuitive gameplay that children can understand immediately without instructions
+3. **Exciting** - Optional speed challenge mode adds thrilling time pressure for competitive players
 
 **Complexity Level**: Light Application (multiple features with basic state)
-- This is a single-view game with interactive card flipping, match detection, score tracking, and restart functionality - perfect for a focused gaming experience
+- This is a single-view game with interactive card flipping, match detection, score tracking, timer functionality, dual game modes, and restart functionality - perfect for a focused gaming experience with replayability
 
 ## Essential Features
+
+### Game Mode Selection
+- **Functionality**: Allows players to choose between Normal Mode (move-based scoring) and Speed Challenge (time-based racing)
+- **Purpose**: Provides variety and different play styles - relaxed strategic play vs. fast-paced excitement
+- **Trigger**: Player selects mode button before or during game
+- **Progression**: Mode selection → Game resets with appropriate rules → UI updates to show relevant stats
+- **Success criteria**: Mode switches cleanly, appropriate timer/move counter displays, records tracked separately
+
+### Difficulty Level Selection
+- **Functionality**: Players can choose Easy (4 pairs), Normal (6 pairs), or Hard (8 pairs)
+- **Purpose**: Adjusts challenge level for different ages and skill levels
+- **Trigger**: Player clicks difficulty button
+- **Progression**: Difficulty selected → Cards reshuffle with new count → Timer adjusts for speed mode
+- **Success criteria**: Card count changes correctly, appropriate time limits set, best scores tracked per difficulty
+
+### Timer System (Speed Challenge Mode)
+- **Functionality**: Countdown timer that tracks remaining seconds, starts on first card flip
+- **Purpose**: Creates urgency and competitive challenge for speed-focused players
+- **Trigger**: First card is flipped in speed challenge mode
+- **Progression**: First flip → Timer starts counting down → Visual warning when low → Game over if time expires
+- **Success criteria**: Timer counts accurately, pauses when game ends, shows clear visual warning below 10 seconds
 
 ### Card Grid Display
 - **Functionality**: Displays a grid of face-down cards that can be flipped to reveal images
@@ -34,18 +55,18 @@ A colorful memory card matching game designed for children, featuring cute anima
 - **Success criteria**: Matching pairs remain visible, non-matching pairs flip back after 1 second
 
 ### Score and Move Tracking
-- **Functionality**: Tracks number of moves (pairs flipped) and matched pairs found
-- **Purpose**: Provides progress feedback and sense of achievement
+- **Functionality**: Tracks number of moves (pairs flipped) in normal mode, or elapsed time in speed mode
+- **Purpose**: Provides progress feedback and competitive metrics
 - **Trigger**: Updates automatically as game progresses
-- **Progression**: Game start → Counters at zero → Each flip pair increments moves → Each match increments score
-- **Success criteria**: Counters display accurately and update in real-time
+- **Progression**: Game start → Counters initialize → Updates with each action → Final score displayed on completion
+- **Success criteria**: Appropriate stats display for each mode, best records saved per difficulty and mode
 
 ### Game Completion
-- **Functionality**: Detects when all pairs are matched and celebrates victory
-- **Purpose**: Provides satisfying conclusion and encourages replay
-- **Trigger**: Last pair is successfully matched
-- **Progression**: Final match made → Victory animation/message → Display final stats → Show restart button
-- **Success criteria**: Clear victory state with encouraging message and easy restart option
+- **Functionality**: Detects when all pairs are matched and celebrates victory, or when time runs out in speed mode
+- **Purpose**: Provides satisfying conclusion or dramatic failure moment
+- **Trigger**: Last pair is successfully matched, or timer reaches zero
+- **Progression**: Win condition → Victory/defeat animation → Display final stats → Show restart button → Update records if best
+- **Success criteria**: Clear victory/defeat state with mode-appropriate message and easy restart option
 
 ### Game Reset
 - **Functionality**: Reshuffles cards and resets all game state
@@ -56,12 +77,14 @@ A colorful memory card matching game designed for children, featuring cute anima
 
 ## Edge Case Handling
 - **Rapid Clicking**: Prevent clicking more than 2 cards at once or clicking the same card twice
-- **Mid-Game Restart**: Allow restart at any time without breaking game state
+- **Mid-Game Restart**: Allow restart at any time without breaking game state, properly clearing timers
 - **Animation Interruption**: Ensure cards can't be clicked while flip animations are in progress
+- **Time Expiry**: Gracefully handle game over when timer reaches zero, disable further card flips
+- **Mode Switching**: Properly reset game state when switching between normal and speed modes
 - **All Matches Found**: Properly detect game completion when final pair is matched
 
 ## Design Direction
-The design should evoke feelings of joy, excitement, and gentle focus - creating a welcoming space where children feel encouraged to explore and succeed. The visual style should be vibrant and playful, with smooth animations that provide delightful feedback for every action.
+The design should evoke feelings of joy, excitement, and gentle focus - creating a welcoming space where children feel encouraged to explore and succeed. The visual style should be vibrant and playful, with smooth animations that provide delightful feedback for every action. Speed challenge mode adds visual urgency through timer animations and color changes.
 
 ## Color Selection
 A cheerful, high-energy palette inspired by children's toys and games, with strong contrast for accessibility.
@@ -86,25 +109,32 @@ Typography should feel friendly, approachable, and easy to read - characteristic
   - Button Text: Fredoka Medium/16px/normal
 
 ## Animations
-Animations should bring moments of delight while serving clear functional purposes. Card flips will use smooth 3D transforms to feel tactile and satisfying. Matched pairs will pulse gently to celebrate success. Victory state will include confetti-like celebration. All animations will be quick (200-400ms) to maintain engagement without causing delays.
+Animations should bring moments of delight while serving clear functional purposes. Card flips will use smooth 3D transforms to feel tactile and satisfying. Matched pairs will pulse gently to celebrate success. Victory state will include confetti-like celebration. Timer warnings will pulse red when below 10 seconds. All animations will be quick (200-400ms) to maintain engagement without causing delays.
 
 ## Component Selection
 - **Components**: 
   - Custom Card component with 3D flip animation (no direct Shadcn equivalent)
-  - Button (Shadcn) for restart action with hover scale effect
-  - Card (Shadcn) as container for game stats display
-  - Badge (Shadcn) for displaying moves and matches count
+  - Button (Shadcn) for restart, mode selection, and difficulty buttons with hover scale effect
+  - Card (Shadcn) as container for game stats and mode selection display
+  - Badge (Shadcn) for displaying moves, time, matches count, and best records
 - **Customizations**: 
   - Custom card grid layout with CSS Grid for responsive arrangement
   - Custom card component with perspective 3D flip using CSS transforms
+  - Timer badge with conditional styling (pulse animation and red color when time is low)
+  - Mode selection buttons with distinct visual styling for normal vs. speed modes
   - Emoji-based card images for lightweight, colorful, kid-friendly visuals
 - **States**: 
-  - Cards: face-down (default), flipping, face-up, matched (locked), disabled (during comparison)
+  - Cards: face-down (default), flipping, face-up, matched (locked), disabled (during comparison or game over)
+  - Timer: normal (default), warning (< 10 seconds with pulse), expired (game over)
+  - Mode buttons: normal with gradient, speed with alternate gradient, unselected with outline
   - Buttons: default with gradient background, hover with scale and brightness boost, active with slight press
   - Victory overlay: hidden (default), visible with scale-up entrance animation
+  - Game over overlay: hidden (default), visible when time expires
 - **Icon Selection**: 
   - ArrowClockwise for restart button (playful restart action)
-  - Trophy/Confetti emoji for victory celebration
+  - Trophy for normal mode and victory celebration
+  - Lightning for speed challenge mode
+  - Timer for countdown display
   - Star emoji for decorative accents
 - **Spacing**: 
   - Card grid: gap-4 (16px) for comfortable spacing between cards
@@ -114,4 +144,5 @@ Animations should bring moments of delight while serving clear functional purpos
   - Cards scale down on mobile (smaller grid cells)
   - 4x3 grid on desktop becomes 3x4 on mobile for better fit
   - Stats stack vertically on mobile, horizontal on desktop
+  - Mode and difficulty buttons wrap on smaller screens
   - Touch-friendly card sizes (minimum 80px tap target)
